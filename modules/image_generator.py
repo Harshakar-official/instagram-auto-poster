@@ -5,7 +5,7 @@ import os
 import math
 import subprocess
 from datetime import datetime
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 import config
 
 logger = logging.getLogger(__name__)
@@ -15,6 +15,25 @@ class ImageGenerator:
     def __init__(self):
         self.source = config.IMAGE_SOURCE
         self.niche = config.NICHE
+
+        try:
+            self.font_large = ImageFont.truetype(
+                "/System/Library/Fonts/Helvetica.ttc", 65
+            )
+            self.font_medium = ImageFont.truetype(
+                "/System/Library/Fonts/Helvetica.ttc", 42
+            )
+            self.font_small = ImageFont.truetype(
+                "/System/Library/Fonts/Helvetica.ttc", 32
+            )
+            self.font_tiny = ImageFont.truetype(
+                "/System/Library/Fonts/Helvetica.ttc", 26
+            )
+        except:
+            self.font_large = ImageFont.load_default()
+            self.font_medium = ImageFont.load_default()
+            self.font_small = ImageFont.load_default()
+            self.font_tiny = ImageFont.load_default()
 
         self.COLOR_PALETTES = [
             {
@@ -635,69 +654,111 @@ class ImageGenerator:
 
     def _add_header(self, draw, text, color):
         try:
-            draw.rectangle([80, 60, 1000, 150], fill=(0, 0, 0, 180))
-            draw.text((540, 105), text, fill=color)
-        except:
-            pass
+            draw.rectangle([50, 30, 1030, 130], fill=(0, 0, 0, 200))
+            bbox = draw.textbbox((0, 0), text, font=self.font_large)
+            text_width = bbox[2] - bbox[0]
+            draw.text(
+                ((1080 - text_width) // 2, 45), text, fill=color, font=self.font_large
+            )
+        except Exception as e:
+            logger.warning(f"Header text error: {e}")
 
     def _add_footer(self, draw, name, url):
         try:
-            draw.rectangle([200, 950, 880, 1030], fill=(0, 0, 0, 180))
-            draw.text((540, 965), name, fill=(0, 200, 255))
-            draw.text((540, 995), url, fill=(100, 180, 200))
-        except:
-            pass
+            draw.rectangle([150, 940, 930, 1030], fill=(0, 0, 0, 200))
+            bbox = draw.textbbox((0, 0), name, font=self.font_medium)
+            name_width = bbox[2] - bbox[0]
+            draw.text(
+                ((1080 - name_width) // 2, 940),
+                name,
+                fill=(0, 200, 255),
+                font=self.font_medium,
+            )
+
+            bbox = draw.textbbox((0, 0), url, font=self.font_small)
+            url_width = bbox[2] - bbox[0]
+            draw.text(
+                ((1080 - url_width) // 2, 985),
+                url,
+                fill=(100, 180, 200),
+                font=self.font_small,
+            )
+        except Exception as e:
+            logger.warning(f"Footer text error: {e}")
 
     def _add_caption_text(self, draw, caption, palette):
         try:
-            y_pos = 200
+            y_pos = 170
             lines = caption.split("\n")
+            max_width = 980
 
             for i, line in enumerate(lines):
                 line = line.strip()
                 if not line:
-                    y_pos += 25
+                    y_pos += 30
                     continue
+
+                is_title = i == 0 and any(c.isalpha() for c in line)
 
                 if line.startswith("✓"):
                     color = (0, 255, 100)
-                    line = "  " + line
+                    font = self.font_small
+                    line = "✓ " + line[1:].strip() if len(line) > 1 else line
+                elif is_title:
+                    color = palette["accent"]
+                    font = self.font_medium
                 elif line.replace(" ", "").replace(".", "").isdigit():
                     color = palette["secondary"]
-                elif line.startswith("#"):
+                    font = self.font_small
+                elif line.startswith("#") or len(line) <= 3:
                     color = (150, 150, 200)
-                    line = line[:40]
+                    font = self.font_tiny
+                    line = line[:35]
                 else:
                     color = (255, 255, 255)
+                    font = self.font_small
 
-                if i == 0 and any(c.isalpha() for c in line):
-                    color = palette["accent"]
+                bbox = draw.textbbox((0, 0), line, font=font)
+                text_width = bbox[2] - bbox[0]
 
-                if len(line) > 32:
+                if text_width > max_width:
                     words = line.split()
-                    line1, line2 = "", ""
+                    lines_wrap = []
+                    current_line = ""
                     for word in words:
-                        if len(line1 + " " + word) < 32:
-                            line1 += (" " + word).strip()
+                        test_line = current_line + " " + word if current_line else word
+                        bbox = draw.textbbox((0, 0), test_line, font=font)
+                        if bbox[2] - bbox[0] <= max_width:
+                            current_line = test_line
                         else:
-                            line2 += (" " + word).strip()
+                            if current_line:
+                                lines_wrap.append(current_line)
+                            current_line = word
+                    if current_line:
+                        lines_wrap.append(current_line)
 
-                    if line1:
-                        draw.text((80, y_pos), line1, fill=color)
-                        y_pos += 32
-                    if line2:
-                        draw.text((80, y_pos), line2, fill=color)
-                        y_pos += 32
+                    for j, wrap_line in enumerate(lines_wrap):
+                        bbox = draw.textbbox((0, 0), wrap_line, font=font)
+                        text_width = bbox[2] - bbox[0]
+                        draw.text(
+                            ((1080 - text_width) // 2, y_pos),
+                            wrap_line,
+                            fill=color,
+                            font=font,
+                        )
+                        y_pos += 45
                 else:
-                    draw.text((80, y_pos), line, fill=color)
-                    y_pos += 32
+                    draw.text(
+                        ((1080 - text_width) // 2, y_pos), line, fill=color, font=font
+                    )
+                    y_pos += 45
 
-                y_pos += 5
-                if y_pos > 900:
+                y_pos += 8
+                if y_pos > 880:
                     break
 
         except Exception as e:
-            logger.warning(f"Could not add caption text: {e}")
+            logger.warning(f"Caption text error: {e}")
 
     def _create_simple_fallback(self):
         p = self._get_palette()
