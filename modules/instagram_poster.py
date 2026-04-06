@@ -1,8 +1,10 @@
 import requests
 import logging
 import time
+import base64
 from datetime import datetime
 import config
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -18,12 +20,19 @@ class InstagramPoster:
             url = f"{self.base_url}/{self.user_id}/media"
 
             with open(image_path, "rb") as file:
-                files = {"image": (image_path.split("/")[-1], file, "image/jpeg")}
-                data = {"caption": caption, "access_token": self.access_token}
+                image_data = file.read()
 
-                response = requests.post(url, data=data, files=files, timeout=60)
+            image_base64 = base64.b64encode(image_data).decode("utf-8")
 
+            data = {
+                "caption": caption,
+                "image_url": f"data:image/jpeg;base64,{image_base64}",
+                "access_token": self.access_token,
+            }
+
+            response = requests.post(url, data=data, timeout=120)
             response.raise_for_status()
+
             result = response.json()
 
             if "id" in result:
