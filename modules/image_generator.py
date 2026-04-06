@@ -105,52 +105,62 @@ class ImageGenerator:
             return self._generate_fallback_image()
 
     def _generate_fallback_image(self):
-        img = Image.new(
-            "RGB",
-            (1080, 1080),
-            color=(
-                random.randint(100, 200),
-                random.randint(100, 200),
-                random.randint(100, 200),
-            ),
-        )
+        from PIL import ImageDraw, ImageFont
+
+        img = Image.new("RGB", (1080, 1080), color=(10, 20, 40))
+        draw = ImageDraw.Draw(img)
+
+        for _ in range(100):
+            x, y = random.randint(0, 1080), random.randint(0, 1080)
+            size = random.randint(2, 5)
+            brightness = random.randint(50, 255)
+            draw.ellipse([x, y, x + size, y + size], fill=(0, brightness, brightness))
+
+        try:
+            font = ImageFont.truetype(
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 60
+            )
+            font_small = ImageFont.truetype(
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 30
+            )
+        except:
+            font = None
+            font_small = None
+
+        if font:
+            draw.text(
+                (540, 480), "VAPTANIX", fill=(0, 255, 255), font=font, anchor="mm"
+            )
+        if font_small:
+            draw.text(
+                (540, 540),
+                "Security Solutions",
+                fill=(100, 200, 200),
+                font=font_small,
+                anchor="mm",
+            )
 
         os.makedirs("images", exist_ok=True)
         image_path = f"images/post_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
         img.save(image_path, "JPEG", quality=95)
 
-        logger.warning("Using fallback solid color image")
-        return image_path, "Generated fallback image"
+        logger.warning("Using fallback cybersecurity-themed image")
+        return image_path, "Generated cybersecurity fallback image"
 
     def _get_search_terms(self):
         niche_terms = {
-            "food": "food photography, delicious meal, restaurant style",
-            "travel": "travel photography, landscape, adventure",
-            "fitness": "fitness motivation, gym, workout",
-            "fashion": "fashion photography, style, outfit",
-            "tech": "technology, gadget, innovation",
-            "lifestyle": "lifestyle photography, everyday moments",
-            "nature": "nature photography, landscape, wildlife",
-            "business": "business, entrepreneurship, success",
-            "art": "art, creative, design",
-            "photography": "photography, camera, photo",
+            "cybersecurity": "cybersecurity, hacker, technology security, digital protection, network security",
+            "tech": "cybersecurity, hacker, technology security, digital protection, network security",
         }
-        return niche_terms.get(self.niche, "lifestyle photography")
+        return niche_terms.get(self.niche, "cybersecurity technology security")
 
     def _get_ai_prompt(self):
         niche_prompts = {
-            "food": "Professional food photography, delicious meal, top-down view, natural lighting, 4k quality",
-            "travel": "Breathtaking travel landscape, golden hour, wide angle, professional photography",
-            "fitness": "Fitness motivation, gym workout, athletic person, energetic, professional photo",
-            "fashion": "Fashion photography, stylish outfit, magazine quality, studio lighting",
-            "tech": "Futuristic technology, sleek design, minimal background, 8k quality",
-            "lifestyle": "Lifestyle photography, candid moment, warm lighting, authentic",
-            "nature": "Stunning nature photography, landscape, epic view, National Geographic style",
-            "business": "Professional business setting, success, entrepreneur, corporate",
-            "art": "Digital art, creative design, vibrant colors, masterpiece",
-            "photography": "Professional photography, creative composition, artistic vision",
+            "cybersecurity": "Futuristic cybersecurity visualization, digital protection, blue neon lights, secure network, technology, professional",
+            "tech": "Futuristic cybersecurity visualization, digital protection, blue neon lights, secure network, technology, professional",
         }
         base_prompt = niche_prompts.get(
-            self.niche, "Professional photography, high quality"
+            self.niche,
+            "Cybersecurity visualization, digital protection, blue neon lights, professional",
         )
         return f"{base_prompt}, Instagram square format, no text, no watermark"

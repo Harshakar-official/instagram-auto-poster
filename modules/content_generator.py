@@ -20,7 +20,7 @@ class ContentGenerator:
         return {
             "caption": caption,
             "hashtags": hashtags,
-            "full_caption": f"{caption}\n\n{hashtags}",
+            "full_caption": f"{caption}\n\n{hashtags}\n\n🔗 Learn more: www.vaptanix.com",
         }
 
     def _generate_caption(self):
@@ -34,20 +34,17 @@ class ContentGenerator:
             return self._generate_template_caption()
 
     def _generate_with_huggingface(self):
-        prompts = {
-            "food": """Generate an engaging Instagram caption about food. Make it descriptive, appetizing, and include an emoji. Keep it between 50-150 characters. Return ONLY the caption, nothing else.""",
-            "travel": """Generate an exciting Instagram caption about travel and adventure. Make it inspiring and wanderlust-inducing. Include an emoji. Keep it between 50-150 characters. Return ONLY the caption, nothing else.""",
-            "fitness": """Generate a motivating Instagram caption about fitness and health. Make it energetic and inspiring. Include an emoji. Keep it between 50-150 characters. Return ONLY the caption, nothing else.""",
-            "fashion": """Generate a stylish Instagram caption about fashion. Make it chic and trendy. Include an emoji. Keep it between 50-150 characters. Return ONLY the caption, nothing else.""",
-            "tech": """Generate a clever Instagram caption about technology. Make it smart and engaging. Include an emoji. Keep it between 50-150 characters. Return ONLY the caption, nothing else.""",
-            "lifestyle": """Generate a warm Instagram caption about lifestyle and everyday moments. Make it relatable and genuine. Include an emoji. Keep it between 50-150 characters. Return ONLY the caption, nothing else.""",
-            "nature": """Generate a beautiful Instagram caption about nature. Make it peaceful and awe-inspiring. Include an emoji. Keep it between 50-150 characters. Return ONLY the caption, nothing else.""",
-            "business": """Generate an inspiring Instagram caption about business and success. Make it motivational and professional. Include an emoji. Keep it between 50-150 characters. Return ONLY the caption, nothing else.""",
-            "art": """Generate a creative Instagram caption about art and creativity. Make it artistic and expressive. Include an emoji. Keep it between 50-150 characters. Return ONLY the caption, nothing else.""",
-            "photography": """Generate an artistic Instagram caption about photography. Make it visual and creative. Include an emoji. Keep it between 50-150 characters. Return ONLY the caption, nothing else.""",
-        }
+        prompt = f"""Generate an educational, engaging Instagram caption about cybersecurity, ethical hacking, or VAPT (Vulnerability Assessment and Penetration Testing). 
 
-        prompt = prompts.get(self.niche, prompts["lifestyle"])
+Make it:
+- Educational and informative
+- Professional yet approachable
+- Include a relevant emoji
+- Between 80-150 characters
+- Focus on a specific cybersecurity tip, threat, or insight
+- End with a subtle call-to-action or knowledge share
+
+Return ONLY the caption, nothing else."""
 
         api_url = f"https://api-inference.huggingface.co/models/{self.model_name}"
 
@@ -58,7 +55,7 @@ class ContentGenerator:
 
         payload = {
             "inputs": prompt,
-            "parameters": {"max_new_tokens": 100, "temperature": 0.8, "top_p": 0.9},
+            "parameters": {"max_new_tokens": 150, "temperature": 0.8, "top_p": 0.9},
         }
 
         try:
@@ -78,7 +75,7 @@ class ContentGenerator:
             if isinstance(result, list) and len(result) > 0:
                 caption = result[0].get("generated_text", "").strip()
                 caption = caption.split("\n")[0].strip()
-                if len(caption) > 20:
+                if len(caption) > 30:
                     logger.info("Generated caption with Hugging Face")
                     return caption
             elif isinstance(result, dict) and "error" in result:
@@ -92,81 +89,40 @@ class ContentGenerator:
         return self._generate_template_caption()
 
     def _generate_template_caption(self):
-        templates = {
-            "food": [
-                "Satisfying my cravings today! 🍽️✨",
-                "Good food, good mood! 😋",
-                "Because pizza is always the answer! 🍕",
-                "Feeding my soul one bite at a time 🥄",
-                "Life is short, eat dessert first! 🍰",
-            ],
-            "travel": [
-                "Collecting moments, not things 🌍✈️",
-                "Adventure awaits around every corner 🗺️",
-                "Lost in the beauty of this place 🌅",
-                "Making memories one destination at a time 📸",
-                "The world is calling and I must go 🌍",
-            ],
-            "fitness": [
-                "Sweat is just fat crying 💪🔥",
-                "Push yourself because no one else will 🏋️",
-                "The only bad workout is the one that didn't happen ⚡",
-                "Strong is the new beautiful 💪✨",
-                "Train insane or remain the same 🔥",
-            ],
-            "fashion": [
-                "Style is a way to say who you are without speaking 👗✨",
-                "Dress like you're going to meet your worst enemy 👠",
-                "Fashion is the armor to survive the reality of everyday life 👗",
-                "When you look good, you feel good 💅",
-                "Elegance is refusal 🖤",
-            ],
-            "tech": [
-                "The future is now 🤖✨",
-                "Innovation distinguishes between a leader and a follower 💡",
-                "Code is poetry in motion 💻",
-                "Building the future, one line at a time 🚀",
-                "Simplicity is the ultimate sophistication 📱",
-            ],
-            "lifestyle": [
-                "Creating a life I love 💫",
-                "The best is yet to come ✨",
-                "Living my best life 🌟",
-                "Making every day count ☀️",
-                "Chasing dreams and coffee mugs ☕",
-            ],
-            "nature": [
-                "Nature does not hurry, yet everything is accomplished 🍃",
-                "In every walk with nature, one receives far more than he seeks 🌿",
-                "The earth has music for those who listen 🎋",
-                "Breathtaking views at every turn 🌄",
-                "Where nature meets tranquility 🌸",
-            ],
-            "business": [
-                "Success is not final, failure is not fatal 🏆",
-                "Dream bigger, work harder 💼",
-                "Building empires, one day at a time 👑",
-                "The grind doesn't stop 💪",
-                "Think big, achieve bigger 📈",
-            ],
-            "art": [
-                "Art is not what you see, but what you make others see 🎨",
-                "Every artist was first an amateur 🖌️",
-                "Creativity takes courage ✨",
-                "Art speaks where words fail to 💫",
-                "Making the ordinary extraordinary 🎭",
-            ],
-            "photography": [
-                "Capturing moments, creating memories 📸",
-                "The best thing about a picture is that it never changes 📷",
-                "Life in focus 🎯",
-                "Seeing the world through a different lens 👁️",
-                "Moments captured, stories told 🖼️",
-            ],
-        }
+        templates = [
+            "Did you know? 95% of cybersecurity breaches are caused by human error. Regular security training could prevent most attacks. 🛡️",
+            "Your password is only as strong as its weakest link. Use a password manager and enable 2FA on all accounts. 🔐",
+            "Phishing emails are getting more sophisticated. Always verify sender addresses and never click suspicious links. 🎣",
+            "Regular penetration testing can identify vulnerabilities before attackers exploit them. Prevention is better than cure. 🔍",
+            "Zero Trust Architecture: Never trust, always verify. In today's threat landscape, assume breach mentality is essential. 🏰",
+            "SQL Injection still ranks in top 3 web application vulnerabilities. Always validate and sanitize user inputs. 💉",
+            "Ransomware attacks increased 150% last year. Offline backups are your best defense against ransom demands. 💾",
+            "Social engineering exploits human psychology, not technical flaws. Security awareness training is your first line of defense. 🧠",
+            "Multi-factor authentication prevents 99.9% of account compromises. If you haven't enabled it yet, do it now! ✋",
+            "Cloud misconfigurations lead to massive data breaches. Review your cloud settings regularly. ☁️",
+            "Buffer overflow vulnerabilities can give attackers full system control. Keep your systems updated and patched. 🛡️",
+            "Bug Bounty programs let ethical hackers find vulnerabilities for rewards. It's a win-win for organizations and researchers. 🐛",
+            "Data encryption is non-negotiable. Encrypt data at rest and in transit to protect sensitive information. 🔒",
+            "Incident response planning is critical. Know what to do BEFORE a breach happens. Time is everything in cybersecurity. ⏰",
+            "API security is often overlooked. APIs are prime targets for attackers. Implement rate limiting and authentication. 🔌",
+            "Physical security matters too. Tailgating and shoulder surfing are real threats. Stay vigilant in the physical world too. 🚪",
+            "Supply chain attacks are rising. Vet your third-party vendors' security practices before integration. ⛓️",
+            "Dark web monitoring can alert you if your credentials are compromised. Early detection saves time and money. 🌑",
+            "Endpoint detection and response (EDR) is essential for modern security. Traditional antivirus isn't enough anymore. 💻",
+            "Security is a shared responsibility. Everyone in an organization plays a role in cybersecurity. 👥",
+            "Cross-Site Scripting (XSS) allows attackers to inject malicious scripts into web pages. Always sanitize user input! ⚠️",
+            "A firewall is your first line of defense, but it's not enough alone. Layer your security for maximum protection. 🏯",
+            "Regular security audits can uncover hidden vulnerabilities. Don't wait for attackers to find them first! 🔎",
+            "Mobile apps often have insecure data storage. Check what data your apps are storing on your device. 📱",
+            "IoT devices are often the weakest link in network security. Change default passwords and update firmware regularly. 🌐",
+            "Brute force attacks try every combination to crack passwords. Use complex, long passwords to make it harder. 🔑",
+            "Security patches fix known vulnerabilities. Delayed patching is an open invitation to attackers. ⏳",
+            "Phishing isn't just emails anymore - SMS phishing (smishing) and voice phishing (vishing) are on the rise! 📞",
+            "Your email is the gateway to your digital life. Protect it with strong authentication and vigilance. 📧",
+            "OWASP Top 10 lists the most critical web application security risks. Familiarize yourself with them! 📋",
+        ]
 
-        niche_templates = templates.get(self.niche, templates["lifestyle"])
-        return random.choice(niche_templates)
+        return random.choice(templates)
 
     def _generate_hashtags(self):
         try:
@@ -179,7 +135,16 @@ class ContentGenerator:
             return self._generate_template_hashtags()
 
     def _generate_hashtags_with_ai(self):
-        prompt = f"""Generate exactly 15 Instagram hashtags for a {self.niche} themed post. Format: #hashtag1 #hashtag2 etc. Make them popular and relevant. Return ONLY the hashtags, nothing else."""
+        prompt = """Generate exactly 15 relevant Instagram hashtags for a cybersecurity/VAPT (Vulnerability Assessment and Penetration Testing) company. 
+
+Include a mix of:
+- Industry-specific hashtags
+- Business-related hashtags
+- General security hashtags
+
+Format: #hashtag1 #hashtag2 #hashtag3 etc.
+
+Return ONLY the hashtags, nothing else."""
 
         api_url = f"https://api-inference.huggingface.co/models/{self.model_name}"
 
@@ -190,7 +155,7 @@ class ContentGenerator:
 
         payload = {
             "inputs": prompt,
-            "parameters": {"max_new_tokens": 100, "temperature": 0.8},
+            "parameters": {"max_new_tokens": 150, "temperature": 0.8},
         }
 
         try:
@@ -231,228 +196,62 @@ class ContentGenerator:
 
     def _generate_template_hashtags(self):
         hashtag_sets = {
-            "food": [
-                "#foodie",
-                "#foodporn",
-                "#foodphotography",
-                "#instafood",
-                "#yummy",
-                "#delicious",
-                "#foodstagram",
-                "#foodblogger",
-                "#foodlover",
-                "#homemade",
-                "#healthyfood",
-                "#foodgasm",
-                "#breakfast",
-                "#lunch",
-                "#dinner",
-                "#snack",
-                "#cuisine",
-                "#foodstyling",
-                "#tasty",
-                "#nomnom",
-            ],
-            "travel": [
-                "#travel",
-                "#travelgram",
-                "#travelphotography",
-                "#wanderlust",
-                "#explore",
-                "#adventure",
-                "#travelblogger",
-                "#instatravel",
-                "#traveling",
-                "#traveler",
-                "#vacation",
-                "#holiday",
-                "#travelling",
-                "#getaway",
-                "#trip",
-                "#tourism",
-                "#landscape",
-                "#nature",
-                "#discovery",
-                "#passport",
-            ],
-            "fitness": [
-                "#fitness",
-                "#fitnessmotivation",
-                "#gym",
-                "#workout",
-                "#fit",
-                "#fitnessjourney",
-                "#training",
-                "#health",
-                "#fitnesslife",
-                "#bodybuilding",
-                "#motivation",
-                "#fitfam",
-                "#strength",
-                "#healthylifestyle",
-                "#exercise",
-                "#gymlife",
-                "#crossfit",
-                "#yoga",
-                "#running",
-                "#weightlifting",
-            ],
-            "fashion": [
-                "#fashion",
-                "#style",
-                "#ootd",
-                "#fashionblogger",
-                "#instafashion",
-                "#fashionista",
-                "#stylish",
-                "#clothing",
-                "#outfit",
-                "#fashionstyle",
-                "#streetstyle",
-                "#look",
-                "#trend",
-                "#fashionable",
-                "#wardrobe",
-                "#closet",
-                "#outfitoftheday",
-                "#instastyle",
-                "#fashionaddict",
-                "#styleinspo",
+            "cybersecurity": [
+                "#cybersecurity",
+                "#infosec",
+                "#informationsecurity",
+                "#pentesting",
+                "#ethicalhacking",
+                "#vapt",
+                "#penetrationtesting",
+                "#vulnerabilityassessment",
+                "#hacker",
+                "#ethicalhacker",
+                "#security",
+                "#cyberdefense",
+                "#cyberattack",
+                "#dataprotection",
+                "#securityawareness",
+                "#infosectips",
+                "#cybersafety",
+                "#onlinesafety",
+                "#privacymatters",
+                "#cybercrime",
+                "#techsecurity",
+                "#networksecurity",
+                "#cloudsecurity",
+                "#appsec",
+                "#websecurity",
             ],
             "tech": [
-                "#tech",
-                "#technology",
-                "#innovation",
-                "#programming",
-                "#coding",
-                "#developer",
-                "#software",
-                "#ai",
-                "#technews",
-                "#gadget",
-                "#startup",
-                "#digital",
                 "#cybersecurity",
-                "#datascience",
-                "#machinelearning",
-                "#python",
-                "#webdevelopment",
-                "#app",
-                "#techlover",
-                "#futuretech",
-            ],
-            "lifestyle": [
-                "#lifestyle",
-                "#life",
-                "#instagood",
-                "#happy",
-                "#love",
-                "#beautiful",
-                "#motivation",
-                "#inspiration",
-                "#lifestyleblogger",
-                "#livemusic",
-                "#goodvibes",
-                "#positivevibes",
-                "#mindfulness",
-                "#selfcare",
-                "#wellness",
-                "# positivity",
-                "#goals",
-                "#dreams",
-                "#success",
-                "#happiness",
-            ],
-            "nature": [
-                "#nature",
-                "#naturephotography",
-                "#landscape",
-                "#photooftheday",
-                "#beautiful",
-                "#sky",
-                "#sunset",
-                "#mountains",
-                "#ocean",
-                "#flowers",
-                "#wildlife",
-                "#forest",
-                "#sunrise",
-                "#travel",
-                "#tree",
-                "#green",
-                "# scenery",
-                "#naturelovers",
-                "#earth",
-                "#outdoors",
-            ],
-            "business": [
-                "#business",
-                "#entrepreneur",
-                "#success",
-                "#motivation",
-                "#money",
-                "#marketing",
-                "#investment",
-                "#startup",
-                "#ceo",
-                "#hustle",
-                "#leadership",
-                "#businessowner",
-                "#smallbusiness",
-                "#growth",
-                "#goals",
-                "#wealth",
-                "#entrepreneurship",
-                "#successquotes",
-                "#businessmindset",
-                "#workhard",
-            ],
-            "art": [
-                "#art",
-                "#artist",
-                "#artwork",
-                "#painting",
-                "#drawing",
-                "#illustration",
-                "#creative",
-                "#design",
-                "#artistic",
-                "#instaart",
-                "#artoftheday",
-                "#beautiful",
-                "#contemporaryart",
-                "#photography",
-                "#digitalart",
-                "#sketch",
-                "#artgallery",
-                "#fineart",
-                "#modernart",
-                "#gallery",
-            ],
-            "photography": [
-                "#photography",
-                "#photooftheday",
-                "#photographer",
-                "#photoshoot",
-                "#instaphoto",
-                "#portrait",
-                "#landscape",
-                "#naturephotography",
-                "#streetphotography",
-                "#camera",
-                "#shotoniphone",
-                "#photo",
-                "#picoftheday",
-                "#igphotography",
-                "#photographylovers",
-                "#canon",
-                "#nikon",
-                "#dslr",
-                "#visualsoflife",
-                "#artofvisuals",
+                "#infosec",
+                "#informationsecurity",
+                "#pentesting",
+                "#ethicalhacking",
+                "#vapt",
+                "#penetrationtesting",
+                "#vulnerabilityassessment",
+                "#hacker",
+                "#ethicalhacker",
+                "#security",
+                "#cyberdefense",
+                "#cyberattack",
+                "#dataprotection",
+                "#securityawareness",
+                "#infosectips",
+                "#cybersafety",
+                "#onlinesafety",
+                "#privacymatters",
+                "#cybercrime",
+                "#techsecurity",
+                "#networksecurity",
+                "#cloudsecurity",
+                "#appsec",
+                "#websecurity",
             ],
         }
 
-        niche_hashtags = hashtag_sets.get(self.niche, hashtag_sets["lifestyle"])
+        niche_hashtags = hashtag_sets.get(self.niche, hashtag_sets["cybersecurity"])
         selected = random.sample(niche_hashtags, min(15, len(niche_hashtags)))
         return " ".join(selected)
