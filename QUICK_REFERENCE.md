@@ -28,13 +28,14 @@
 
 ### Optional (2 min each)
 
-**Hugging Face** (AI captions):
-- huggingface.co → Settings → Access Tokens → New Token
-- Add: HUGGINGFACE_TOKEN
-
 **Unsplash** (free images):
 - unsplash.com/developers → Register → Create App
 - Add: UNSPLASH_ACCESS_KEY, IMAGE_SOURCE=unsplash
+
+**AI Images (COMPLETELY FREE!)**:
+- No setup needed! Uses Pollinations.ai
+- Works out of the box
+- Use `--ai` flag or set `USE_AI_IMAGES=true`
 
 ---
 
@@ -45,32 +46,29 @@
 | INSTAGRAM_USER_ID | Graph API Explorer (Step 6) | ✅ Yes |
 | ACCESS_TOKEN | Graph API Explorer (Step 4) | ✅ Yes |
 | FACEBOOK_PAGE_ID | Graph API Explorer (Step 5) | ✅ Yes |
-| HUGGINGFACE_TOKEN | huggingface.co | ❌ No |
 | UNSPLASH_ACCESS_KEY | unsplash.com/developers | ❌ No |
 | IMAGE_SOURCE | `unsplash` | ✅ Yes |
-| NICHE | Your choice | ✅ Yes |
+| NICHE | `cybersecurity` | ✅ Yes |
+| USE_AI_IMAGES | `true` or `false` | ❌ No |
 
 ---
 
-## Niche Options
-
-Choose one and set as `NICHE` secret:
-```
-food | travel | fitness | fashion | tech | lifestyle | nature | business | art | photography
-```
-
----
-
-## Testing Commands
+## Running Commands
 
 ```bash
-# Install
-pip install -r requirements.txt
+# Activate virtual environment
+source venv/bin/activate
 
-# Run locally
-python main.py
+# Post with infographic style
+python main.py --post
 
-# Test modes
+# Post with FREE AI-generated image (NEW!)
+python main.py --ai
+
+# Auto-post daily with AI images
+./post.sh schedule-ai
+
+# Other commands
 python main.py --health      # Check API connection
 python main.py --analytics   # View recent post stats
 ```
@@ -80,7 +78,7 @@ python main.py --analytics   # View recent post stats
 ## Schedule (edit post.yml)
 
 ```yaml
-cron: '0 9,18 * * *'  # 9 AM & 6 PM daily (UTC)
+cron: '0 7,9,12,15,18,21 * * *'  # 6 posts daily (UTC)
 ```
 
 Time zones:
@@ -95,7 +93,7 @@ Time zones:
 instagram-auto-poster/
 ├── main.py                      # Run this
 ├── config.py                    # Settings
-├── requirements.txt             # pip install this
+├── ai_image.js                  # AI image generation (Pollinations.ai)
 ├── modules/
 │   ├── content_generator.py    # AI captions
 │   ├── image_generator.py      # Image fetching
@@ -118,6 +116,16 @@ instagram-auto-poster/
 
 ---
 
+## Image Options
+
+| Type | Command | Cost |
+|------|---------|------|
+| Infographic | `--post` | Free |
+| AI Generated | `--ai` | FREE (Pollinations.ai) |
+| Unsplash | `--post` (with key) | Free |
+
+---
+
 ## Flow Diagram
 
 ```
@@ -127,13 +135,17 @@ main.py runs
         ↓
 ┌───────┴───────┐
 ↓               ↓
-AI Captions   Fetch Image
-(HuggingFace) (Unsplash)
-        ↓               ↓
-        └───────┬───────┘
-                ↓
+AI Captions   Generate Image
+              ↓
+        ┌─────┴─────┐
+        ↓           ↓
+   Infographic  AI Images
+   (PIL)       (Pollinations.ai)
+        ↓           ↓
+        └─────┬─────┘
+              ↓
         Instagram Graph API
-                ↓
+              ↓
         Post Published! ✅
 ```
 

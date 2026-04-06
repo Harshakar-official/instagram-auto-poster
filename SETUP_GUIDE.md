@@ -253,6 +253,44 @@ This enables free high-quality images.
 
 ---
 
+## PHASE 4B: AI IMAGE GENERATION (COMPLETELY FREE!)
+
+**No setup required!** The system uses Pollinations.ai for AI-generated images at no cost.
+
+### How to Use AI Images
+
+```bash
+# Post with AI-generated image
+./post.sh ai
+
+# Or with Python directly
+source venv/bin/activate
+python main.py --ai
+
+# Schedule with AI images
+./post.sh schedule-ai
+```
+
+### Enable by Default
+
+Add to your `.env` file:
+```
+USE_AI_IMAGES=true
+```
+
+### Models Available
+
+| Model | Speed | Quality |
+|-------|-------|---------|
+| flux | Slower | Higher quality |
+| turbo | Faster | Good quality |
+
+---
+
+## PHASE 5: GITHUB SETUP
+
+---
+
 ## PHASE 5: GITHUB SETUP
 
 ### Step 5.1: Create GitHub Account (if not done)
@@ -285,6 +323,8 @@ This enables free high-quality images.
    .env.example
    .gitignore
    README.md
+   ai_image.js              # NEW! AI image generation
+   post.sh                   # Helper script
    modules/content_generator.py
    modules/image_generator.py
    modules/instagram_poster.py

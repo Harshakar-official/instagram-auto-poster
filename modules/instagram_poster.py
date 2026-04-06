@@ -15,6 +15,28 @@ class InstagramPoster:
         self.access_token = config.ACCESS_TOKEN
         self.base_url = "https://graph.facebook.com/v18.0"
 
+    def upload_to_catbox(self, image_path):
+        try:
+            with open(image_path, "rb") as file:
+                files = {
+                    "reqtype": (None, "fileupload"),
+                    "time": (None, "72h"),
+                    "fileToUpload": file,
+                }
+                response = requests.post(
+                    "https://catbox.moe/user/api.php", files=files, timeout=120
+                )
+
+            if response.status_code == 200:
+                image_url = response.text.strip()
+                if image_url.startswith("https://"):
+                    logger.info(f"Uploaded to catbox: {image_url}")
+                    return image_url
+            return None
+        except Exception as e:
+            logger.error(f"catbox upload failed: {e}")
+            return None
+
     def upload_to_0x0_st(self, image_path):
         try:
             with open(image_path, "rb") as file:
@@ -30,8 +52,69 @@ class InstagramPoster:
             logger.error(f"0x0.st upload failed: {e}")
             return None
 
+    def upload_to_litterbox(self, image_path):
+        try:
+            with open(image_path, "rb") as file:
+                files = {
+                    "reqtype": (None, "fileupload"),
+                    "time": (None, "72h"),
+                    "fileToUpload": file,
+                }
+                response = requests.post(
+                    "https://litterbox.catbox.moe/resources/internals/api.php",
+                    files=files,
+                    timeout=60,
+                )
+
+            if response.status_code == 200:
+                image_url = response.text.strip()
+                if image_url.startswith("https://"):
+                    logger.info(f"Uploaded to litterbox: {image_url}")
+                    return image_url
+            return None
+        except Exception as e:
+            logger.error(f"Litterbox upload failed: {e}")
+            return None
+
+    def upload_to_tmpfiles(self, image_path):
+        try:
+            with open(image_path, "rb") as file:
+                files = {"file": ("image.jpg", file, "image/jpeg")}
+                response = requests.post(
+                    "https://tmpfiles.org/api/v1/upload", files=files, timeout=60
+                )
+
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("status") == "success":
+                    url = data.get("data", {}).get("url", "")
+                    image_url = url.replace("tmpfiles.org/", "tmpfiles.org/dl/")
+                    logger.info(f"Uploaded to tmpfiles: {image_url}")
+                    return image_url
+            return None
+        except Exception as e:
+            logger.error(f"tmpfiles upload failed: {e}")
+            return None
+
     def upload_image(self, image_path):
-        return self.upload_to_0x0_st(image_path)
+        services = [
+            ("Catbox", self.upload_to_catbox),
+            ("Litterbox", self.upload_to_litterbox),
+            ("0x0.st", self.upload_to_0x0_st),
+            ("tmpfiles", self.upload_to_tmpfiles),
+        ]
+
+        for name, func in services:
+            try:
+                image_url = func(image_path)
+                if image_url:
+                    logger.info(f"Successfully uploaded via {name}")
+                    return image_url
+            except Exception as e:
+                logger.error(f"{name} failed: {e}")
+
+        logger.error("All image hosting services failed")
+        return None
 
     def create_container(self, image_path, caption):
         try:

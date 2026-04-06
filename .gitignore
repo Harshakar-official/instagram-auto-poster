@@ -1,57 +1,11 @@
-# Environment variables
-.env
-.env.local
-.env.production
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual environments
+node_modules/
 venv/
-ENV/
-env/
-.venv/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# Logs
+__pycache__/
+*.pyc
+.env
 *.log
-instagram_bot.log
-
-# Images
+bot.log
+bot.error.log
 images/*.jpg
 images/*.png
-!images/.gitkeep
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Secrets
-*.pem
-*.key
-credentials.json
+post_state.json

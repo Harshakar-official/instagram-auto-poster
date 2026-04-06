@@ -23,3 +23,10 @@ MAX_RETRIES = int(os.getenv("MAX_RETRIES", "3"))
 RETRY_DELAY = int(os.getenv("RETRY_DELAY", "60"))
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+
+USE_AI_IMAGES = os.getenv("USE_AI_IMAGES", "false").lower() == "true"
+
+AI_IMAGE_MODELS = {
+    "flux": "flux (default, high quality)",
+    "turbo": "turbo (faster generation)",
+}
