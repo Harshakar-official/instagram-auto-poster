@@ -2,7 +2,6 @@ import requests
 import logging
 import time
 import base64
-import json
 from datetime import datetime
 import config
 import os
@@ -16,41 +15,27 @@ class InstagramPoster:
         self.access_token = config.ACCESS_TOKEN
         self.base_url = "https://graph.facebook.com/v18.0"
 
-    def upload_to_imgur(self, image_path):
+    def upload_to_0x0_st(self, image_path):
         try:
             with open(image_path, "rb") as file:
-                image_data = file.read()
+                files = {"file": file}
+                response = requests.post("https://0x0.st", files=files, timeout=60)
 
-            import urllib.parse
-
-            url = "https://api.imgur.com/3/image"
-            headers = {
-                "Authorization": "Client-ID c7f5c5e5e5e5e5c7f5c5e5e5e5e5e5c7f5c5e5"
-            }
-            data = {
-                "image": base64.b64encode(image_data).decode("utf-8"),
-                "type": "base64",
-            }
-
-            response = requests.post(url, headers=headers, data=data, timeout=60)
             response.raise_for_status()
-
-            result = response.json()
-            if result.get("success"):
-                image_url = result["data"]["link"]
-                logger.info(f"Uploaded image to imgur: {image_url}")
-                return image_url
-            else:
-                logger.error(f"imgur upload failed: {result}")
-                return None
+            image_url = response.text.strip()
+            logger.info(f"Uploaded to 0x0.st: {image_url}")
+            return image_url
 
         except Exception as e:
-            logger.error(f"Error uploading to imgur: {e}")
+            logger.error(f"0x0.st upload failed: {e}")
             return None
+
+    def upload_image(self, image_path):
+        return self.upload_to_0x0_st(image_path)
 
     def create_container(self, image_path, caption):
         try:
-            image_url = self.upload_to_imgur(image_path)
+            image_url = self.upload_image(image_path)
             if not image_url:
                 logger.error("Failed to upload image, cannot create container")
                 return None
@@ -83,47 +68,7 @@ class InstagramPoster:
             return None
 
         except Exception as e:
-            logger.error(f"Error uploading to imgbb: {e}")
-            return None
-
-    def create_container(self, image_path, caption):
-        try:
-            image_url = self.upload_to_imgbb(image_path)
-            if not image_url:
-                logger.error("Failed to upload image, cannot create container")
-                return None
-
-            url = f"{self.base_url}/{self.user_id}/media"
-
-            data = {
-                "caption": caption,
-                "image_url": image_url,
-                "access_token": self.access_token,
-            }
-
-            response = requests.post(url, data=data, timeout=60)
-            response.raise_for_status()
-
-            result = response.json()
-
-            if "id" in result:
-                container_id = result["id"]
-                logger.info(f"Created media container: {container_id}")
-                return container_id
-            else:
-                logger.error(f"No container ID in response: {result}")
-                return None
-
-        except requests.exceptions.RequestException as e:
             logger.error(f"Error creating container: {e}")
-            if hasattr(e, "response") and e.response is not None:
-                logger.error(f"Response: {e.response.text}")
-            return None
-
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Error creating container: {e}")
-            if hasattr(e, "response") and e.response is not None:
-                logger.error(f"Response: {e.response.text}")
             return None
 
     def publish_container(self, container_id):
