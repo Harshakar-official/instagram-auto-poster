@@ -18,13 +18,12 @@ class InstagramPoster:
             url = f"{self.base_url}/{self.user_id}/media"
 
             with open(image_path, "rb") as file:
-                files = {"image": file}
+                files = {"image": (image_path.split("/")[-1], file, "image/jpeg")}
+                data = {"caption": caption, "access_token": self.access_token}
 
-            data = {"caption": caption, "access_token": self.access_token}
+                response = requests.post(url, data=data, files=files, timeout=60)
 
-            response = requests.post(url, data=data, files=files, timeout=60)
             response.raise_for_status()
-
             result = response.json()
 
             if "id" in result:
