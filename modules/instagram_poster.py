@@ -2,6 +2,7 @@ import requests
 import logging
 import time
 import base64
+import json
 from datetime import datetime
 import config
 import os
@@ -15,22 +16,49 @@ class InstagramPoster:
         self.access_token = config.ACCESS_TOKEN
         self.base_url = "https://graph.facebook.com/v18.0"
 
+    def upload_to_imgbb(self, image_path):
+        try:
+            with open(image_path, "rb") as file:
+                image_base64 = base64.b64encode(file.read()).decode("utf-8")
+
+            url = "https://api.imgbb.com/1/upload"
+            payload = {
+                "key": "2ed651567ba503a99d53b8d2c1f41973",
+                "image": image_base64,
+            }
+
+            response = requests.post(url, data=payload, timeout=60)
+            response.raise_for_status()
+
+            result = response.json()
+            if result.get("success"):
+                image_url = result["data"]["url"]
+                logger.info(f"Uploaded image to imgbb: {image_url}")
+                return image_url
+            else:
+                logger.error(f"imgbb upload failed: {result}")
+                return None
+
+        except Exception as e:
+            logger.error(f"Error uploading to imgbb: {e}")
+            return None
+
     def create_container(self, image_path, caption):
         try:
+            image_url = self.upload_to_imgbb(image_path)
+            if not image_url:
+                logger.error("Failed to upload image, cannot create container")
+                return None
+
             url = f"{self.base_url}/{self.user_id}/media"
-
-            with open(image_path, "rb") as file:
-                image_data = file.read()
-
-            image_base64 = base64.b64encode(image_data).decode("utf-8")
 
             data = {
                 "caption": caption,
-                "image_url": f"data:image/jpeg;base64,{image_base64}",
+                "image_url": image_url,
                 "access_token": self.access_token,
             }
 
-            response = requests.post(url, data=data, timeout=120)
+            response = requests.post(url, data=data, timeout=60)
             response.raise_for_status()
 
             result = response.json()
@@ -42,6 +70,12 @@ class InstagramPoster:
             else:
                 logger.error(f"No container ID in response: {result}")
                 return None
+
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error creating container: {e}")
+            if hasattr(e, "response") and e.response is not None:
+                logger.error(f"Response: {e.response.text}")
+            return None
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Error creating container: {e}")
