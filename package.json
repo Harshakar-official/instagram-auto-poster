@@ -1,0 +1,9 @@
+{
+  "name": "instagram-auto-poster",
+  "version": "1.0.0",
+  "description": "AI-powered Instagram auto-poster with Pollinations.ai image generation",
+  "scripts": {
+    "test": "echo \"No tests yet\""
+  },
+  "dependencies": {}
+}
