@@ -13,8 +13,11 @@ from modules.instagram_poster import InstagramPoster
 from post_state import PostState
 import config
 
-LOG_DIR = Path("/Users/harshakar/Documents/Instagram Automation")
-LOG_FILE = LOG_DIR / "instagram_bot.log"
+SCRIPT_DIR = Path(__file__).parent.resolve()
+LOG_FILE = SCRIPT_DIR / "instagram_bot.log"
+IMAGES_DIR = SCRIPT_DIR / "images"
+
+IMAGES_DIR.mkdir(exist_ok=True)
 
 logging.basicConfig(
     level=getattr(logging, config.LOG_LEVEL),

@@ -11,7 +11,8 @@ import config
 
 logger = logging.getLogger(__name__)
 
-BASE_DIR = Path("/Users/harshakar/Documents/Instagram Automation")
+SCRIPT_DIR = Path(__file__).parent.parent.resolve()
+BASE_DIR = SCRIPT_DIR
 
 
 class ImageGenerator:
@@ -19,6 +20,7 @@ class ImageGenerator:
         self.source = config.IMAGE_SOURCE
         self.niche = config.NICHE
         self.images_dir = BASE_DIR / "images"
+        self.images_dir.mkdir(exist_ok=True)
 
         try:
             self.font_large = ImageFont.truetype(
