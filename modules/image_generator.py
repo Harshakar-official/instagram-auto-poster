@@ -5,16 +5,20 @@ import os
 import math
 import subprocess
 from datetime import datetime
+from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 import config
 
 logger = logging.getLogger(__name__)
+
+BASE_DIR = Path("/Users/harshakar/Documents/Instagram Automation")
 
 
 class ImageGenerator:
     def __init__(self):
         self.source = config.IMAGE_SOURCE
         self.niche = config.NICHE
+        self.images_dir = BASE_DIR / "images"
 
         try:
             self.font_large = ImageFont.truetype(
@@ -131,9 +135,10 @@ class ImageGenerator:
 
     def generate_ai_image(self, prompt):
         try:
-            os.makedirs("images", exist_ok=True)
-            image_path = (
-                f"images/ai_post_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
+            self.images_dir.mkdir(exist_ok=True)
+            image_path = str(
+                self.images_dir
+                / f"ai_post_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
             )
 
             prompts = [
@@ -147,7 +152,7 @@ class ImageGenerator:
             cyber_prompt = random.choice(prompts)
 
             result = subprocess.run(
-                ["node", "ai_image.js", cyber_prompt, image_path],
+                ["node", str(BASE_DIR / "ai_image.js"), cyber_prompt, image_path],
                 capture_output=True,
                 text=True,
                 timeout=120,
@@ -169,8 +174,10 @@ class ImageGenerator:
 
     def generate_image(self, caption_text=None):
         try:
-            os.makedirs("images", exist_ok=True)
-            image_path = f"images/post_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
+            self.images_dir.mkdir(exist_ok=True)
+            image_path = str(
+                self.images_dir / f"post_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
+            )
 
             templates = [
                 self._create_gradient_vibes,
@@ -775,8 +782,10 @@ class ImageGenerator:
         self._add_header(draw, "VAPTANIX", p["accent"])
         self._add_footer(draw, "VAPTANIX", "www.vaptanix.com")
 
-        os.makedirs("images", exist_ok=True)
-        image_path = f"images/post_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
+        self.images_dir.mkdir(exist_ok=True)
+        image_path = str(
+            self.images_dir / f"post_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
+        )
         img.save(image_path, "JPEG", quality=95)
 
         logger.warning("Using fallback image")
