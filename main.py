@@ -4,6 +4,7 @@ import time
 import schedule
 from datetime import datetime
 import os
+from pathlib import Path
 from threading import Thread
 
 from modules.content_generator import ContentGenerator
@@ -12,12 +13,15 @@ from modules.instagram_poster import InstagramPoster
 from post_state import PostState
 import config
 
+LOG_DIR = Path("/Users/harshakar/Documents/Instagram Automation")
+LOG_FILE = LOG_DIR / "instagram_bot.log"
+
 logging.basicConfig(
     level=getattr(logging, config.LOG_LEVEL),
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler("instagram_bot.log"),
+        logging.FileHandler(str(LOG_FILE)),
     ],
 )
 
