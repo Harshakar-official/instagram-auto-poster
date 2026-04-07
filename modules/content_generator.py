@@ -89,6 +89,13 @@ Return ONLY the caption, nothing else."""
         return self._generate_template_caption()
 
     def _generate_template_caption(self):
+        content_type = random.choice(
+            ["educational", "educational", "educational", "promotional"]
+        )
+
+        if content_type == "promotional":
+            return self._generate_promo_caption()
+
         templates = [
             "🔐 PASSWORD SECURITY\n\n95% of breaches start with stolen credentials.\n\n✓ Use 12+ character passwords\n✓ Never reuse passwords\n✓ Enable 2FA everywhere\n✓ Use a password manager\n\n#cybersecurity #infosec #passwordsecurity",
             "🎣 PHISHING ALERT\n\nPhishing accounts for 90% of data breaches!\n\n✓ Check sender email carefully\n✓ Don't click unknown links\n✓ Verify before sharing data\n✓ Report suspicious emails\n\n#phishing #cybersecurity #securityawareness",
@@ -123,6 +130,32 @@ Return ONLY the caption, nothing else."""
         ]
 
         return random.choice(templates)
+
+    def _generate_promo_caption(self):
+        promo_templates = [
+            "🚀 VAPTANIX SERVICES\n\nProtect your business with professional VAPT!\n\n→ Vulnerability Assessment\n→ Penetration Testing\n→ Security Audits\n→ 24/7 Support\n\nContact us today!\n\n#vaptanix #cybersecurity #pentesting",
+            "🔍 NEED A SECURITY CHECK?\n\nYour website might have hidden vulnerabilities.\n\n✓ OWASP Top 10 Testing\n✓ Network Penetration Testing\n✓ Social Engineering Tests\n✓ Full Security Report\n\nGet protected with Vaptanix!\n\n#websitesecurity #pentesting #vapt",
+            "💼 ENTERPRISE SECURITY\n\nBig business = big targets.\n\nDon't wait for a breach.\n\n→ Annual Pen Tests\n→ Compliance Ready\n→ Expert Team\n→ Detailed Reports\n\nCall Vaptanix now!\n\n#enterprise #cybersecurity #infosec",
+            "🎯 GET HACKED BEFORE HACKERS DO\n\nOur ethical hackers find your weaknesses.\n\n✓ Web App Testing\n✓ API Security\n✓ Mobile App Testing\n✓ Cloud Security\n\nRequest a quote today!\n\n#ethicalhacking #securityaudit #vapt",
+            "🛡️ STAY AHEAD OF THREATS\n\nCyber attacks are increasing daily.\n\nAre you protected?\n\n→ Pre-breach Testing\n→ Vulnerability Scans\n→ Security Training\n→ Incident Response\n\nPartner with Vaptanix!\n\n#cybersecurity #threatdetection #security",
+            "📞 FREE SECURITY CONSULTATION\n\nNot sure what you need?\n\nWe'll assess your security posture.\n\n✓ No obligation\n✓ Expert advice\n✓ Custom solutions\n✓ Affordable pricing\n\nDM us or visit vaptanix.com\n\n#securityconsultation #cybersecurity",
+            "⚡ QUICK VULNERABILITY SCAN\n\nKnow your risks in hours.\n\n→ Automated Scans\n→ Manual Testing\n→ Risk Prioritization\n→ Fix Recommendations\n\nGet started with Vaptanix!\n\n#vulnerabilityscan #cybersecurity #infosec",
+            "🏆 TRUST VAPTANIX\n\nProtecting businesses since years.\n\n→ 500+ Tests Completed\n→ 1000+ Vulnerabilities Found\n→ 99% Client Satisfaction\n→ Certified Experts\n\nYour security is our priority!\n\n#vaptanix #trustedsecurity #cybersecurity",
+            "🔒 SECURE YOUR SUCCESS\n\nA breach can cost millions.\n\nPrevention costs less.\n\n→ Affordable Plans\n→ Flexible Testing\n→ Detailed Reports\n→ Ongoing Support\n\nContact Vaptanix today!\n\n#prevention #cybersecurity #security",
+            "📋 COMPLIANCE MADE EASY\n\nNeed ISO 27001, SOC2, PCI-DSS?\n\nWe help you get there.\n\n→ Gap Analysis\n→ Remediation Support\n→ Audit Preparation\n→ Continuous Monitoring\n\nVaptanix has you covered!\n\n#compliance #isosec #pci #security",
+            "🌟 WHY CHOOSE VAPTANIX?\n\n✓ Certified Ethical Hackers\n✓ Latest Tools & Techniques\n✓ Comprehensive Reports\n✓ Affordable Pricing\n✓ Excellent Support\n\nYour trusted security partner!\n\n#vaptanix #ethicalhacker #cybersecurity",
+            "💪 PROTECT WHAT MATTERS\n\nYour data, your reputation, your business.\n\nDon't compromise on security.\n\n→ Proactive Testing\n→ Threat Intelligence\n→ Security Awareness\n→ Rapid Response\n\nVaptanix - Your Security Ally!\n\n#dataprotection #cybersecurity #infosec",
+            "🎁 LIMITED TIME OFFER\n\nGet 20% OFF on your first VAPT!\n\nComprehensive testing at great price.\n\n→ Network Assessment\n→ Web App Testing\n→ Social Engineering\n→ Detailed Report\n\nHurry! Offer ends soon!\n\n#specialoffer #vapt #cybersecurity",
+            "🔐 BEYOND FIREWALLS\n\nFirewalls aren't enough anymore.\n\nYou need comprehensive testing.\n\n✓ External Network Tests\n✓ Internal Network Tests\n✓ WiFi Security\n✓ Physical Security\n\nVaptanix provides complete coverage!\n\n#comprehensivesecurity #vapt #infosec",
+            "📱 MOBILE APP SECURITY\n\nApps handle sensitive data.\n\nIs yours secure?\n\n→ iOS & Android Testing\n→ API Security\n→ Data Storage Review\n→ Authentication Tests\n\nGet your app tested by Vaptanix!\n\n#mobileappsec #apps #cybersecurity",
+            "☁️ CLOUD SECURITY TESTING\n\nMoving to cloud? Test it!\n\n✓ AWS, Azure, GCP Testing\n✓ Configuration Review\n✓ Access Control Testing\n✓ Data Security\n\nVaptanix - Cloud Security Experts!\n\n#cloudsecurity #aws #azure #cybersecurity",
+            "🎓 SECURITY AWARENESS TRAINING\n\nYour employees are your first line of defense.\n\n→ Phishing Simulations\n→ Security Workshops\n→ Best Practices Training\n→ Custom Content\n\nBuild a security-conscious team!\n\n#securitytraining #awareness #cybersecurity",
+            "🚨 INCIDENT RESPONSE\n\nBreached? We help!\n\n→ Immediate Assessment\n→ Containment Support\n→ Forensic Analysis\n→ Recovery Planning\n→ Prevention Recommendations\n\nVaptanix IR team is ready 24/7!\n\n#incidentresponse #breach #cybersecurity",
+            "💼 STARTUP SECURITY PACKAGE\n\nStartups need security too!\n\nAffordable packages designed for you.\n\n→ Vulnerability Assessment\n→ Basic Pen Testing\n→ Security Consultation\n→ Security Checklist\n\nGet protected from day one!\n\n#startup #entrepreneur #cybersecurity",
+            "🔍 RED TEAM ASSESSMENT\n\nThink like an attacker.\n\n✓ Covert Operations\n✓ Social Engineering\n✓ Physical Testing\n✓ Supply Chain Analysis\n\nComprehensive attack simulation by Vaptanix!\n\n#redteam #pentesting #cybersecurity",
+        ]
+
+        return random.choice(promo_templates)
 
     def _generate_hashtags(self):
         try:

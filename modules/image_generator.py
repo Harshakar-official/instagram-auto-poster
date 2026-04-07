@@ -78,13 +78,45 @@ class ImageGenerator:
         try:
             self.images_dir.mkdir(exist_ok=True)
 
-            layouts = [
-                self._create_professional_infographic,
-                self._create_clean_checklist,
-                self._create_modern_card,
-                self._create_bold_header,
-                self._create_stats_style,
-            ]
+            content_type = (
+                "promo"
+                if any(
+                    word in caption_text.lower()
+                    for word in [
+                        "vaptanix",
+                        "services",
+                        "protect",
+                        "security",
+                        "contact",
+                        "call",
+                        "quote",
+                        "offer",
+                        "discount",
+                        "support",
+                        "team",
+                        "partner",
+                        "trust",
+                    ]
+                )
+                else "edu"
+            )
+
+            if content_type == "promo":
+                layouts = [
+                    self._create_promo_ad,
+                    self._create_service_card,
+                    self._create_cta_banner,
+                    self._create_service_grid,
+                    self._create_testimonial_style,
+                ]
+            else:
+                layouts = [
+                    self._create_professional_infographic,
+                    self._create_clean_checklist,
+                    self._create_modern_card,
+                    self._create_bold_header,
+                    self._create_stats_style,
+                ]
 
             img = random.choice(layouts)(caption_text)
             image_path = str(
@@ -552,6 +584,519 @@ class ImageGenerator:
             (540, 1000),
             "vaptanix.com | vaptanixsecurity",
             fill=(150, 180, 200),
+            font=self.fonts["small"],
+        )
+
+        return img
+
+    def _create_promo_ad(self, caption=None):
+        c = {
+            "bg": (15, 25, 50),
+            "accent": (255, 200, 50),
+            "cta": (0, 255, 150),
+            "text": (255, 255, 255),
+        }
+
+        img = Image.new("RGB", (1080, 1080), c["bg"])
+        draw = ImageDraw.Draw(img)
+
+        for i in range(1080):
+            ratio = i / 1080
+            r = int(c["bg"][0] + 30 * ratio)
+            g = int(c["bg"][1] + 20 * ratio)
+            b = int(c["bg"][2] + 15 * ratio)
+            draw.line([(0, i), (1080, i)], fill=(r, g, b))
+
+        for _ in range(80):
+            x, y = random.randint(0, 1080), random.randint(0, 1080)
+            size = random.randint(3, 8)
+            draw.ellipse([x, y, x + size, y + size], fill=(255, 200, 50, 80))
+
+        draw.rectangle([0, 0, 1080, 320], fill=(0, 0, 0, 200))
+
+        shield = [(540, 50), (650, 100), (650, 200), (540, 280), (430, 200), (430, 100)]
+        draw.polygon(shield, fill=(0, 0, 0, 0), outline=c["accent"], width=5)
+        draw.ellipse([500, 110, 580, 190], fill=c["accent"])
+        draw.text((520, 130), "VAPTANIX", fill=c["bg"], font=ImageFont.load_default())
+
+        draw.text((540, 60), "PROFESSIONAL", fill=c["accent"], font=self.fonts["hero"])
+        draw.text(
+            (540, 140), "SECURITY SERVICES", fill=c["text"], font=self.fonts["subtitle"]
+        )
+        draw.text(
+            (540, 210),
+            "protecting businesses nationwide",
+            fill=(200, 200, 200),
+            font=self.fonts["small"],
+        )
+
+        if caption:
+            lines = [
+                l.strip()
+                for l in caption.split("\n")
+                if l.strip() and not l.startswith("#")
+            ]
+            y_pos = 380
+
+            for line in lines[:8]:
+                if any(
+                    word in line.upper()
+                    for word in [
+                        "VAPTANIX",
+                        "CONTACT",
+                        "CALL",
+                        "QUOTE",
+                        "OFFER",
+                        "HURRY",
+                        "TODAY",
+                        "NOW",
+                        "GET",
+                        "TRY",
+                    ]
+                ):
+                    draw.rectangle(
+                        [100, y_pos - 5, 980, y_pos + 50], fill=(255, 200, 50, 50)
+                    )
+                    draw.text(
+                        (540, y_pos),
+                        line,
+                        fill=c["accent"],
+                        font=self.fonts["subtitle"],
+                    )
+                    y_pos += 65
+                elif line.startswith("✓") or "→" in line:
+                    symbol = "✓" if "✓" in line else "→"
+                    draw.text(
+                        (150, y_pos), symbol, fill=c["cta"], font=self.fonts["body"]
+                    )
+                    draw.text(
+                        (190, y_pos),
+                        line.replace("✓", "").replace("→", "").strip(),
+                        fill=(255, 255, 255),
+                        font=self.fonts["body"],
+                    )
+                    y_pos += 55
+                elif len(line) < 50 and any(c.isalpha() for c in line):
+                    draw.text(
+                        (540, y_pos),
+                        line,
+                        fill=(255, 255, 255),
+                        font=self.fonts["body"],
+                    )
+                    y_pos += 55
+
+        draw.rectangle([50, 920, 1030, 1030], fill=c["accent"])
+        draw.text(
+            (540, 935), "CONTACT US TODAY!", fill=c["bg"], font=self.fonts["title"]
+        )
+        draw.text(
+            (540, 990),
+            "www.vaptanix.com | Get Protected Now",
+            fill=(50, 50, 50),
+            font=self.fonts["small"],
+        )
+
+        return img
+
+    def _create_service_card(self, caption=None):
+        c = {
+            "bg": (25, 20, 50),
+            "accent": (150, 100, 255),
+            "card": (40, 30, 70),
+            "cta": (0, 255, 200),
+        }
+
+        img = Image.new("RGB", (1080, 1080), c["bg"])
+        draw = ImageDraw.Draw(img)
+
+        draw.ellipse([-300, -300, 400, 400], fill=(80, 60, 120))
+        draw.ellipse([700, 700, 1400, 1400], fill=(80, 60, 120))
+
+        for _ in range(60):
+            x, y = random.randint(0, 1080), random.randint(0, 1080)
+            draw.ellipse([x, y, x + 3, y + 3], fill=(200, 200, 255, 50))
+
+        self._draw_box(draw, 60, 60, 960, 960, c["card"], c["accent"], 5)
+
+        draw.rectangle([60, 60, 1020, 200], fill=(0, 0, 0, 150))
+        draw.text((540, 75), "OUR SERVICES", fill=c["accent"], font=self.fonts["hero"])
+        draw.text(
+            (540, 145),
+            "Comprehensive Security Solutions",
+            fill=(200, 200, 200),
+            font=self.fonts["body"],
+        )
+
+        services = [
+            ("PENETRATION TESTING", "Network & Web App"),
+            ("VULNERABILITY SCAN", "Automated & Manual"),
+            ("SECURITY AUDIT", "Compliance Ready"),
+            ("INCIDENT RESPONSE", "24/7 Support"),
+        ]
+
+        y_pos = 260
+        for i, (service, desc) in enumerate(services):
+            y = y_pos + i * 150
+
+            self._draw_box(draw, 100, y, 880, 130, (0, 0, 0, 80), c["accent"], 2)
+
+            draw.ellipse([120, y + 25, 180, y + 85], fill=c["accent"])
+            draw.text((135, y + 35), str(i + 1), fill=c["bg"], font=self.fonts["body"])
+
+            draw.text(
+                (200, y + 20),
+                service,
+                fill=(255, 255, 255),
+                font=self.fonts["subtitle"],
+            )
+            draw.text(
+                (200, y + 70), desc, fill=(180, 180, 180), font=self.fonts["small"]
+            )
+
+            draw.text((850, y + 35), "→", fill=c["cta"], font=self.fonts["title"])
+
+        if caption:
+            lines = [
+                l.strip()
+                for l in caption.split("\n")
+                if l.strip() and not l.startswith("#")
+            ][:3]
+            y_pos = 880
+            for line in lines:
+                if any(
+                    word in line.upper()
+                    for word in ["CONTACT", "CALL", "QUOTE", "VISIT"]
+                ):
+                    draw.text(
+                        (540, y_pos), line, fill=c["cta"], font=self.fonts["body"]
+                    )
+                    y_pos += 40
+
+        draw.rectangle([200, 950, 880, 1030], fill=(0, 0, 0, 150))
+        draw.text((540, 960), "VAPTANIX", fill=c["accent"], font=self.fonts["subtitle"])
+        draw.text(
+            (540, 1000),
+            "vaptanix.com | info@vaptanix.com",
+            fill=(180, 180, 180),
+            font=self.fonts["small"],
+        )
+
+        return img
+
+    def _create_cta_banner(self, caption=None):
+        c = {
+            "bg": (20, 10, 40),
+            "accent": (255, 100, 200),
+            "highlight": (255, 220, 50),
+            "cta": (0, 255, 150),
+        }
+
+        img = Image.new("RGB", (1080, 1080), c["bg"])
+        draw = ImageDraw.Draw(img)
+
+        for i in range(0, 1080, 30):
+            alpha = 40 if i % 60 == 0 else 20
+            draw.line([(i, 0), (i, 1080)], fill=(100, 50, 150, alpha))
+
+        for _ in range(150):
+            x, y = random.randint(0, 1080), random.randint(0, 1080)
+            size = random.randint(2, 6)
+            draw.ellipse([x, y, x + size, y + size], fill=(255, 100, 200, 80))
+
+        draw.rectangle([0, 0, 1080, 350], fill=(0, 0, 0, 200))
+
+        draw.text(
+            (540, 50), "NEED SECURITY?", fill=c["highlight"], font=self.fonts["hero"]
+        )
+        draw.text(
+            (540, 140),
+            "GET PROFESSIONAL HELP NOW",
+            fill=(255, 255, 255),
+            font=self.fonts["title"],
+        )
+        draw.text(
+            (540, 220),
+            "Don't wait for a breach",
+            fill=(200, 200, 200),
+            font=self.fonts["body"],
+        )
+        draw.text(
+            (540, 270),
+            "Protect your business today",
+            fill=(200, 200, 200),
+            font=self.fonts["body"],
+        )
+
+        if caption:
+            lines = [
+                l.strip()
+                for l in caption.split("\n")
+                if l.strip() and not l.startswith("#")
+            ]
+            y_pos = 400
+
+            for line in lines[:6]:
+                if any(
+                    word in line.upper()
+                    for word in [
+                        "CONTACT",
+                        "CALL",
+                        "QUOTE",
+                        "OFFER",
+                        "HURRY",
+                        "TODAY",
+                        "NOW",
+                        "GET STARTED",
+                        "DM",
+                    ]
+                ):
+                    draw.rectangle(
+                        [100, y_pos - 5, 980, y_pos + 55], fill=c["highlight"]
+                    )
+                    draw.text(
+                        (540, y_pos), line, fill=(0, 0, 0), font=self.fonts["subtitle"]
+                    )
+                    y_pos += 75
+                elif line.startswith("✓") or "→" in line:
+                    symbol = "✓" if "✓" in line else "→"
+                    color = c["cta"] if "✓" in line else c["accent"]
+                    draw.text((200, y_pos), symbol, fill=color, font=self.fonts["body"])
+                    draw.text(
+                        (240, y_pos),
+                        line.replace("✓", "").replace("→", "").strip(),
+                        fill=(255, 255, 255),
+                        font=self.fonts["body"],
+                    )
+                    y_pos += 55
+
+        draw.rectangle([50, 880, 1030, 1030], fill=c["cta"])
+        draw.text(
+            (540, 895), "CONTACT VAPTANIX NOW!", fill=(0, 0, 0), font=self.fonts["hero"]
+        )
+        draw.text(
+            (540, 970),
+            "vaptanix.com | Your Trusted Security Partner",
+            fill=(50, 80, 50),
+            font=self.fonts["body"],
+        )
+
+        return img
+
+    def _create_service_grid(self, caption=None):
+        c = {
+            "bg": (30, 35, 50),
+            "accent": (100, 200, 255),
+            "highlight": (255, 180, 100),
+        }
+
+        img = Image.new("RGB", (1080, 1080), c["bg"])
+        draw = ImageDraw.Draw(img)
+
+        for i in range(1080):
+            ratio = i / 1080
+            r = int(c["bg"][0] + 15 * ratio)
+            g = int(c["bg"][1] + 10 * ratio)
+            b = int(c["bg"][2] + 20 * ratio)
+            draw.line([(0, i), (1080, i)], fill=(r, g, b))
+
+        draw.rectangle([30, 30, 1050, 1050], outline=c["accent"], width=5)
+
+        draw.rectangle([30, 30, 1050, 150], fill=(0, 0, 0, 180))
+        draw.text(
+            (540, 50), "VAPTANIX SERVICES", fill=c["accent"], font=self.fonts["hero"]
+        )
+        draw.text(
+            (540, 115),
+            "Complete Cybersecurity Solutions",
+            fill=(200, 200, 200),
+            font=self.fonts["body"],
+        )
+
+        services = [
+            ("WEB SECURITY", "Web App Testing", c["accent"]),
+            ("NETWORK SECURITY", "Penetration Testing", c["highlight"]),
+            ("CLOUD SECURITY", "AWS, Azure, GCP", c["accent"]),
+            ("MOBILE SECURITY", "iOS & Android", c["highlight"]),
+            ("API SECURITY", "REST & GraphQL", c["accent"]),
+            ("SOCIAL ENGINEERING", "Human Testing", c["highlight"]),
+        ]
+
+        y_pos = 200
+        for i, (title, desc, color) in enumerate(services):
+            row = i // 2
+            col = i % 2
+
+            x = 60 + col * 500
+            y = y_pos + row * 200
+
+            self._draw_box(draw, x, y, 460, 170, (0, 0, 0, 80), color, 3)
+
+            draw.ellipse([x + 20, y + 20, x + 70, y + 70], fill=color)
+            draw.text(
+                (x + 32, y + 28), str(i + 1), fill=(0, 0, 0), font=self.fonts["small"]
+            )
+
+            draw.text(
+                (x + 90, y + 25),
+                title,
+                fill=(255, 255, 255),
+                font=self.fonts["subtitle"],
+            )
+            draw.text(
+                (x + 90, y + 70), desc, fill=(180, 180, 180), font=self.fonts["small"]
+            )
+
+            draw.text((x + 350, y + 100), "→", fill=color, font=self.fonts["title"])
+
+        if caption:
+            lines = [
+                l.strip()
+                for l in caption.split("\n")
+                if l.strip() and not l.startswith("#")
+            ][:2]
+            y_pos = 870
+            for line in lines:
+                if any(
+                    word in line.upper()
+                    for word in ["CONTACT", "CALL", "QUOTE", "VISIT", "DM", "HURRY"]
+                ):
+                    draw.text(
+                        (540, y_pos), line, fill=c["highlight"], font=self.fonts["body"]
+                    )
+                    y_pos += 40
+
+        draw.rectangle([200, 940, 880, 1030], fill=(0, 0, 0, 150))
+        draw.text(
+            (540, 955),
+            "www.vaptanix.com",
+            fill=c["accent"],
+            font=self.fonts["subtitle"],
+        )
+        draw.text(
+            (540, 1000),
+            "Get a Free Quote Today!",
+            fill=(200, 200, 200),
+            font=self.fonts["body"],
+        )
+
+        return img
+
+    def _create_testimonial_style(self, caption=None):
+        c = {
+            "bg": (15, 30, 50),
+            "accent": (255, 200, 80),
+            "star": (255, 220, 50),
+            "quote": (200, 220, 255),
+            "cta": (0, 255, 150),
+        }
+
+        img = Image.new("RGB", (1080, 1080), c["bg"])
+        draw = ImageDraw.Draw(img)
+
+        for _ in range(100):
+            x, y = random.randint(0, 1080), random.randint(0, 1080)
+            size = random.randint(2, 5)
+            draw.ellipse([x, y, x + size, y + size], fill=(255, 200, 80, 50))
+
+        self._draw_box(draw, 50, 50, 980, 980, None, c["accent"], 5)
+
+        draw.rectangle([50, 50, 1030, 200], fill=(0, 0, 0, 180))
+        draw.text((540, 65), "WHY VAPTANIX?", fill=c["accent"], font=self.fonts["hero"])
+
+        for i in range(5):
+            x = 250 + i * 130
+            draw.text((x, 130), "★", fill=c["star"], font=ImageFont.load_default())
+        draw.text(
+            (540, 165),
+            "Trusted by 500+ Businesses",
+            fill=(200, 200, 200),
+            font=self.fonts["small"],
+        )
+
+        stats = [
+            ("500+", "Projects Done"),
+            ("1000+", "Vulns Found"),
+            ("99%", "Satisfaction"),
+            ("24/7", "Support"),
+        ]
+
+        y_pos = 250
+        box_w = 230
+        for i, (num, label) in enumerate(stats):
+            x = 80 + i * (box_w + 20)
+
+            self._draw_box(draw, x, y_pos, box_w, 150, (0, 0, 0, 100), c["accent"], 3)
+
+            draw.text(
+                (x + box_w // 2, y_pos + 20),
+                num,
+                fill=c["star"],
+                font=self.fonts["hero"],
+            )
+            draw.text(
+                (x + box_w // 2, y_pos + 90),
+                label,
+                fill=(200, 200, 200),
+                font=self.fonts["body"],
+            )
+
+        why_us = [
+            "Certified Ethical Hackers",
+            "Latest Tools & Techniques",
+            "Comprehensive Reports",
+            "Affordable Pricing",
+            "Excellent Support",
+        ]
+
+        y_pos = 450
+        draw.rectangle([80, y_pos, 1000, y_pos + 320], fill=(0, 0, 0, 100))
+
+        draw.text(
+            (540, y_pos + 10),
+            "WHY CHOOSE US?",
+            fill=c["accent"],
+            font=self.fonts["subtitle"],
+        )
+
+        y_pos += 60
+        for i, item in enumerate(why_us):
+            col = i % 2
+            row = i // 2
+
+            x = 120 + col * 460
+            y = y_pos + row * 70
+
+            draw.ellipse([x, y + 5, x + 30, y + 35], fill=c["cta"])
+            draw.text(
+                (x + 5, y + 8), "✓", fill=(0, 0, 0), font=ImageFont.load_default()
+            )
+            draw.text(
+                (x + 45, y + 5), item, fill=(255, 255, 255), font=self.fonts["body"]
+            )
+
+        if caption:
+            lines = [
+                l.strip()
+                for l in caption.split("\n")
+                if l.strip() and not l.startswith("#")
+            ][:3]
+            y_pos = 800
+            for line in lines:
+                if any(
+                    word in line.upper()
+                    for word in ["CONTACT", "CALL", "QUOTE", "PARTNER"]
+                ):
+                    draw.text(
+                        (540, y_pos), line, fill=c["quote"], font=self.fonts["body"]
+                    )
+                    y_pos += 40
+
+        draw.rectangle([150, 930, 930, 1030], fill=(0, 0, 0, 150))
+        draw.text((540, 945), "VAPTANIX", fill=c["accent"], font=self.fonts["subtitle"])
+        draw.text(
+            (540, 990),
+            "Your Trusted Security Partner | vaptanix.com",
+            fill=(180, 180, 180),
             font=self.fonts["small"],
         )
 
